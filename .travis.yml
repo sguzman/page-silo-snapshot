@@ -1,0 +1,34 @@
+language: generic
+
+sudo: required
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install -y curl parallel cmake wget zip
+  - wget 'https://github.com/google/brotli/archive/v1.0.4.tar.gz'
+  - tar zxvf v1.0.4.tar.gz
+  - cd brotli-1.0.4/
+  - cmake .
+  - make
+  - sudo cp ./brotli /bin/brotli
+  - sudo chmod 777 /bin/brotli
+  - cd ..
+  - wget 'https://github.com/ericchiang/pup/releases/download/v0.4.0/pup_v0.4.0_linux_amd64.zip'
+  - unzip pup_v0.4.0_linux_amd64.zip
+  - sudo cp ./pup /bin/pup
+  - sudo chmod 777 /bin/pup
+install:
+  - git config --global user.name "Salvador Guzman"
+  - git config --global user.email "guzmansalv@gmail.com"
+  - git clone 'https://github.com/sguzman/pages-silo-links'
+  - cd pages-silo-links
+  - mkdir -p links/
+  - cd links/
+script:
+  - cat ../../snap/pages.brotli | brotli -d | pup 'h2.post-title > a[href] attr{href}' | sed -e 's@https://it-eb.com@@g' | brotli > links.brotli
+after_success:
+  - git add links.brotli
+  - git commit -m 'Added links'
+  - echo $GITHUB_AUTH > ~/.git-credentials
+  - git config --global credential.helper store
+  - git push
