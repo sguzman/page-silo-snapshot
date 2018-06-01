@@ -25,6 +25,7 @@ install:
   - mkdir -p links/
   - cd links/
 script:
+  - rm -f links.brotli
   - cat ../../snap/pages.brotli | brotli -d | pup 'h2.post-title > a[href] attr{href}' | sed -e 's@https://it-eb.com/@@g' | sed -e 's@/$@@g' | brotli > links.brotli
 after_success:
   - git add links.brotli
